@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>N-Back</title>
+  <meta name="description" content="Dual N-Back working memory trainer. Plays great on iPhone, Android and desktop.">
+  <meta name="theme-color" content="#f3f4f8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0e1016" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="N-Back">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-screen="home">
+
+  <!-- ============ HOME ============ -->
+  <main id="home" class="screen active">
+    <header class="brand">
+      <div class="logo" aria-hidden="true">
+        <i></i><i></i><i class="on"></i><i></i><i class="mid"></i><i></i><i></i><i></i><i></i>
+      </div>
+      <div>
+        <h1>N-Back</h1>
+        <p class="tag">Working memory trainer</p>
+      </div>
+    </header>
+
+    <section class="card play-card">
+      <div class="level">
+        <button class="step" id="nDown" type="button" aria-label="Lower level">&minus;</button>
+        <div class="level-value" aria-live="polite">
+          <span id="nValue">2</span><small>-back</small>
+        </div>
+        <button class="step" id="nUp" type="button" aria-label="Raise level">+</button>
+      </div>
+
+      <div class="seg" role="radiogroup" aria-label="Mode" data-setting="mode">
+        <button type="button" role="radio" data-value="position">Position</button>
+        <button type="button" role="radio" data-value="audio">Sound</button>
+        <button type="button" role="radio" data-value="dual">Dual</button>
+      </div>
+
+      <button id="startBtn" class="primary big" type="button">Start</button>
+      <p class="hint" id="modeHint"></p>
+    </section>
+
+    <section class="card">
+      <h2>Progress</h2>
+      <div class="tiles">
+        <div class="tile"><b id="statToday">0</b><small>Today</small></div>
+        <div class="tile"><b id="statTotal">0</b><small>Sessions</small></div>
+        <div class="tile"><b id="statBest">&ndash;</b><small id="statBestLabel">Best</small></div>
+      </div>
+      <p class="empty" id="progressEmpty">Finish a session to see your progress here.</p>
+      <div id="progressBody" hidden>
+        <div class="chart" id="chart"></div>
+        <div class="legend">
+          <span><i class="up"></i>&ge;80% level up</span>
+          <span><i class="hold"></i>50&ndash;79%</span>
+          <span><i class="down"></i>&lt;50%</span>
+        </div>
+        <ul class="recent" id="recent"></ul>
+      </div>
+    </section>
+
+    <details class="card how">
+      <summary><h2>How to play</h2></summary>
+      <ol>
+        <li>Every few seconds a square lights up on the grid and a letter is spoken.</li>
+        <li>Tap <b>Position</b> when the square is in the same spot as it was <b>N</b> turns ago.</li>
+        <li>Tap <b>Sound</b> when the letter is the same as the one <b>N</b> turns ago.</li>
+        <li>Both can match on the same turn &mdash; then tap both.</li>
+      </ol>
+      <div class="example">
+        <p><b>2-back example</b> &mdash; letters: <code>K&nbsp;&nbsp;R&nbsp;&nbsp;<u>K</u>&nbsp;&nbsp;T&nbsp;&nbsp;<u>K</u></code></p>
+        <p>The 3rd letter matches the 1st, and the 5th matches the 3rd.</p>
+      </div>
+      <p>Score 80% or more and you move up a level. Under 50% and you drop one. A few short sessions a day works best.</p>
+      <p class="muted">No sound on iPhone? Turn up the volume, check the silent switch, or switch the sound to Tones in Settings.</p>
+    </details>
+
+    <section class="card settings">
+      <h2>Settings</h2>
+
+      <div class="row">
+        <span class="row-label">Speed <small>seconds per turn</small></span>
+        <div class="seg small" role="radiogroup" aria-label="Speed" data-setting="interval">
+          <button type="button" role="radio" data-value="2000">2</button>
+          <button type="button" role="radio" data-value="2500">2.5</button>
+          <button type="button" role="radio" data-value="3000">3</button>
+          <button type="button" role="radio" data-value="3500">3.5</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <span class="row-label">Sound <small>what you hear</small></span>
+        <div class="seg small" role="radiogroup" aria-label="Sound" data-setting="sound">
+          <button type="button" role="radio" data-value="voice">Letters</button>
+          <button type="button" role="radio" data-value="tones">Tones</button>
+        </div>
+      </div>
+
+      <label class="row switch-row">
+        <span class="row-label">Instant feedback <small>green or red when you tap</small></span>
+        <input type="checkbox" class="switch" id="optFeedback">
+      </label>
+
+      <label class="row switch-row">
+        <span class="row-label">Auto level <small>move up or down after each session</small></span>
+        <input type="checkbox" class="switch" id="optAuto">
+      </label>
+
+      <div class="row">
+        <span class="row-label">History <small id="historyCount">0 sessions saved on this device</small></span>
+        <button class="ghost danger" id="clearBtn" type="button">Clear</button>
+      </div>
+    </section>
+
+    <p class="foot">Tip: on iPhone tap <b>Share</b> &rarr; <b>Add to Home Screen</b> to play full screen.</p>
+  </main>
+
+  <!-- ============ GAME ============ -->
+  <section id="game" class="screen" aria-label="Game">
+    <div class="topbar">
+      <span class="pill" id="gLabel">Dual &middot; 2-back</span>
+      <span class="counter" id="gCounter">1 / 22</span>
+      <button class="icon-btn" id="pauseBtn" type="button" aria-label="Pause">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>
+      </button>
+      <div class="progress"><span id="gProgress"></span></div>
+    </div>
+
+    <div class="board-wrap">
+      <div class="board" id="board">
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <div class="cell"></div><div class="cell center" id="center"></div><div class="cell"></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+      </div>
+    </div>
+
+    <button class="resp" id="btnPos" data-m="pos" type="button">
+      <span>Position</span><kbd>A</kbd>
+    </button>
+    <button class="resp" id="btnAud" data-m="aud" type="button">
+      <span>Sound</span><kbd>L</kbd>
+    </button>
+
+    <div class="overlay" id="pauseOverlay" hidden>
+      <div class="sheet">
+        <h2>Paused</h2>
+        <p class="muted" id="pauseInfo">The current turn will replay when you resume.</p>
+        <button class="primary big" id="resumeBtn" type="button">Resume</button>
+        <button class="ghost" id="quitBtn" type="button">Quit session</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section id="results" class="screen" aria-label="Results">
+    <div class="results-inner">
+      <p class="eyebrow" id="rLabel">Dual &middot; 2-back</p>
+      <div class="ring">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="ring-track" cx="60" cy="60" r="52"/>
+          <circle class="ring-fill" id="rRing" cx="60" cy="60" r="52"/>
+        </svg>
+        <div class="ring-num"><span id="rScore">0</span><small>%</small></div>
+      </div>
+      <p class="verdict" id="rVerdict"></p>
+      <div class="breakdown" id="rBreakdown"></div>
+      <div class="actions">
+        <button class="primary big" id="againBtn" type="button">Play again</button>
+        <button class="ghost" id="homeBtn" type="button">Home</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
